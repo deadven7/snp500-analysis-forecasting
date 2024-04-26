@@ -1,0 +1,236 @@
+Loading data frame of PFizer Company data. We will be carrying out the analysis.
+
+```{r}
+library(forecast)
+library(tseries)
+library(fpp2)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(plotly)
+library(quantmod)
+library(tidyquant)
+```
+
+
+```{r}
+#Taking the path of the csv file.
+
+Path = "/Applications/Fall Semester/Homework/Linear regression/Project/PFE.csv"
+
+#Loading the dataframe
+PFizer <-read.csv("PFE.csv" ,header = TRUE,na.strings = 999.99)
+```
+
+Printing out the head of the PFizer data frame
+```{r}
+head(PFizer)
+```
+Printing out the tail of the PFizer data frame
+```{r}
+tail(PFizer)
+```
+Loading the data frame in tabular format
+```{r}
+View(PFizer)
+```
+Loading the dimension of the data frame
+```{r}
+dim(PFizer)
+```
+The data frame has 946 rows and 7 columns
+
+View structure of data
+```{r}
+str(PFizer)
+```
+
+Converting the date column data type from chr to date
+
+```{r}
+PFizer <- PFizer %>% mutate(Date = as.Date(Date, format = "%d/%m/%Y"))
+```
+
+Adding column month to the data frame
+```{r}
+PFizer <- PFizer %>% mutate(month=month(Date))
+```
+
+Adding column year to the data frame
+```{r}
+PFizer <- PFizer %>% mutate(year=year(Date))
+```
+
+Loading the new data frame
+```{r}
+head(PFizer)
+```
+We will study the trend of mean_close parameter of the data frame.
+
+Lets create a line plot of the full time series of PFizer sector stocks, using Dataframe's plot() method
+```{r}
+plot(PFizer$year,PFizer$Close,xlab="Month",ylab="Close",type="l",lwd=2,col="blue")
+```
+To get a better view of trend, let's plot the data frame w.r.t mean_close for the time period.
+```{r}
+# plot the data using ggplot2 and pipes
+PFizer %>%
+ggplot(aes(x = Date, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Closing trend - PFizer",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing trend",
+           x = "Date") + theme_bw(base_size = 15)
+```
+We can get more insight from the data by plotting it using logs
+Taking log values of closing values and the differences of logs
+```{r}
+plot(10*diff(log(PFizer[,6])),xlab="year",ylab="Close",type="l",lwd=2,col="orange")
+```
+Let's see for year 2022
+```{r}
+year_data_PFizer=subset(PFizer,subset=PFizer$Date>='2022-01-01' & PFizer$Date<='2022-12-31')
+head(year_data_PFizer)
+```
+```{r}
+plot(year_data_PFizer[,1],year_data_PFizer[,6],xlab="Year 2022",ylab="Close",type="l",lwd=2,main="Close values",col="orange")
+```
+We see, that the trend is starting with high and then decreasing and increasing continuously for the year 2022.
+
+Let's do box plot for yearly data.
+Taking quantile of the mean_close
+```{r}
+quantile(PFizer$Close,probs=c(0,0.25,0.5,0.75,1))
+```
+plotting the boxplot
+```{r}
+boxplot(PFizer$Close~PFizer$year,main="Closing trend over the years 2019-2022",ylab="Closing",xlab="years",las=1,col="green")
+```
+We see that the year 2022 is performing better than rest of the years..
+
+Now, let's do the analysis based on months for the years 2019-2022
+
+```{r}
+# plot the data using ggplot2 and pipes
+PFizer %>%
+ggplot(aes(x = month, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - PFizer",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 15)
+
+```
+Here, we see that the monthly trend is not that clear as the month trend for one year is getting overlapped with another year.
+
+Let's try another graph which is line graph to see if we can see something clearly compared to previous graph
+```{r}
+ggplot(data=PFizer,aes(x=month,y=Close,col="red",group=1))+geom_line(linetype="dashed")+geom_point()
+```
+Again, we cannot infer clearly here.
+
+To overcome this problem, let's group the data by month and year
+```{r}
+# calculate the sum closing for each month
+PFizer_month <- PFizer %>%
+  group_by(month, year) %>%
+  summarise(max_Close = sum(Close))
+```
+
+Loading the newly created dataset where the data is 
+```{r}
+head(PFizer_month)
+```
+plotting the new data frame to see the trend
+
+```{r}
+PFizer_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_Close)) +
+      geom_bar(stat = "identity", fill = "darkorchid4") +
+  facet_wrap(~ year, ncol = 3) +
+      labs(title = "Monthly Total Daily closing",
+           subtitle = "Data plotted by year",
+           y = "Closing trend",
+           x = "Month") + theme_bw(base_size = 15) +
+  scale_x_date(date_labels = "%b")
+```
+From this, The year has been highest performing in quarters 2 and 3.
+
+Creating new dataframe with Date and Closing value
+```{r}
+PFizer %>% select(Date,Close)
+```
+Since we have made many of our analysis from the data, we will now be forecasting the data for the coming year(s).
+
+To check if the dataset is considered as time series by R Studio
+```{r}
+class(PFizer)
+```
+It says it is data frame. It should be time series data frame so that it can be used to forecast using time series model.
+
+```{r}
+PFizer_time <-ts(PFizer$Close,start=min(PFizer$Date),end=max(PFizer$Date),frequency = 1)
+```
+
+```{r}
+class(PFizer_time)
+```
+
+```{r}
+library(forecast)
+```
+
+
+```{r}
+plot(PFizer_time)
+```
+To check if our data is stationary or not and is eligible for forecasting, we will find the auto correlation function.
+```{r}
+acf(PFizer_time)
+```
+Here, we see that the values are shooting higher than the blue dotted horizontal lines which says that they are not stationary.
+
+Also, let's check the partial auto correlation function.
+```{r}
+pacf(PFizer_time)
+```
+Here, the partial autocorrelation function doesn't show much out of range values.
+
+Let's do Augmented Dickey-Fuller Test to test the stationarity one last time.
+```{r}
+adf.test(PFizer_time)
+```
+Form the above test, we see that the p-value is not less than or equal to 0.05 which says that the data is definitely not stationary.
+
+To fit a good and best ARIMA model, we will use auto.arima function to run all possible sets and choose the best fitting model.
+```{r}
+#Fit an ARIMA model
+
+fit_arima<-auto.arima(PFizer_time,ic="aic",trace = TRUE)
+
+```
+After running the trace, we see that ARIMA(1,1,0) is the best fitting model.
+
+Let's check the residuals and graphs of ARIMA model.
+```{r}
+print(summary(fit_arima))
+checkresiduals(fit_arima)
+```
+We will now be using our ARIMA model to forecast for next five years with confidence interval as 95%.
+
+```{r}
+#Forecast with ARIMA model
+fcst<-forecast(fit_arima,level=c(95),h=5)
+```
+
+```{r}
+plot(fcst,include = 10)
+```
+Testing the result of our forecast.
+```{r}
+Box.test(fcst$resid,lag=5,type="Ljung-Box")
+```
+
+We see here that the p-value is not below 0.05 and hence it says that our model doesn't have much correlation and is a good forecast.
+

@@ -1,0 +1,1079 @@
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(plotly)
+library(quantmod)
+library(tidyquant)
+sp_data <- read.csv("S&P-500 Total Data.csv")
+head(sp_data)
+```
+
+```{r}
+summary(sp_data)
+```
+
+```{r}
+colnames(sp_data) <- c('Date', 'Open', 'High', 'Low', 'Close', 'Adjusted Close', 'Volume')
+sp_data$Date <- as.POSIXct( sp_data$Date, format="%Y-%m-%d" )
+sp_data <- sp_data %>% mutate(Month=month(Date))
+sp_data <- sp_data %>% mutate(Year=year(Date))
+sp_data$Year_Month <- as.yearmon(paste(sp_data$Year, sp_data$Month), "%Y %m")
+sp_data_2022 = subset(sp_data, subset=sp_data$Date>='2022-01-01' & sp_data$Date<='2022-12-31')
+sp_data_2021 = subset(sp_data, subset=sp_data$Date>='2021-01-01' & sp_data$Date<='2021-12-31')
+sp_data_2020 = subset(sp_data, subset=sp_data$Date>='2020-01-01' & sp_data$Date<='2020-12-31')
+sp_data_2019 = subset(sp_data, subset=sp_data$Date>='2019-01-01' & sp_data$Date<='2019-12-31')
+```
+
+```{r}
+head(sp_data_2019)
+```
+
+```{r}
+ggplot(data = sp_data, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2019, aes(y=High), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2020, aes(y=High), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2021, aes(y=High), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2022, aes(y=High), color='darkorange')  + theme_minimal(base_size = 12) + 
+  labs(title = "High Trend - S&P500 Index", subtitle = "A line plot defining the high values for the S&P500 Index (2019-22)", y = "High Trend", x = "Date (in Years)")
+
+```
+
+```{r}
+ggplot(data = sp_data, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2019, aes(y=Open), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2020, aes(y=Open), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2021, aes(y=Open), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2022, aes(y=Open), color='darkorange')  + theme_minimal(base_size = 12) + 
+  labs(title = "Open Trend - S&P500 Index", subtitle = "A line plot defining the open values for the S&P500 Index (2019-22)", y = "Open Trend", x = "Date (in Years)")
+
+
+```
+
+```{r}
+ggplot(data = sp_data, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2019, aes(y=Close), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2020, aes(y=Close), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2021, aes(y=Close), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2022, aes(y=Close), color='darkorange') + theme_minimal(base_size = 12) + 
+  labs(title = "Close Trend - S&P500 Index", subtitle = "A line plot defining the close values for the S&P500 Index (2019-22)", y = "Close Trend", x = "Date (in Years)")
+
+```
+
+```{r}
+ggplot(data = sp_data, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2019, aes(y=Low), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2020, aes(y=Low), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2021, aes(y=Low), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=sp_data_2022, aes(y=Low), color='darkorange') + theme_minimal(base_size = 12) +
+  labs(title = "Low Trend - S&P500 Index", subtitle = "A line plot defining the low values for the S&P500 Index (2019-22)", y = "Low Trend", x = "Date (in Years)")
+
+```
+
+```{r}
+fig <- sp_data_2019 %>% plot_ly(x = ~Date, type="candlestick",
+          open = ~Open, close = ~Close,
+          high = ~High, low = ~Low) 
+fig <- fig %>% layout(title = "Candlestick Chart for S&P500 Index (2019)",
+         xaxis = list(rangeslider = list(rangeslider = list(visible = F))))
+
+fig
+```
+
+```{r}
+fig <- sp_data_2020 %>% plot_ly(x = ~Date, type="candlestick",
+          open = ~Open, close = ~Close,
+          high = ~High, low = ~Low) 
+fig <- fig %>% layout(title = "Candlestick Chart for S&P500 Index (2020)",
+         xaxis = list(rangeslider = list(rangeslider = list(visible = T))))
+
+fig
+```
+
+```{r}
+fig <- sp_data_2021 %>% plot_ly(x = ~Date, type="candlestick",
+          open = ~Open, close = ~Close,
+          high = ~High, low = ~Low) 
+fig <- fig %>% layout(title = "Candlestick Chart for S&P500 Index(2021)",
+         xaxis = list(rangeslider = list(rangeslider = list(visible = F))))
+
+fig
+```
+
+```{r}
+fig <- sp_data_2022 %>% plot_ly(x = ~Date, type="candlestick",
+          open = ~Open, close = ~Close,
+          high = ~High, low = ~Low) 
+fig <- fig %>% layout(title = "Candlestick Chart S&P500 Index(2022)",
+         xaxis = list(rangeslider = list(rangeslider = list(visible = F))))
+
+fig
+```
+
+```{r}
+ggplot(data=sp_data, aes(group = 1, x = Year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=sp_data_2019, aes(y=Close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=sp_data_2020, aes(y=Close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=sp_data_2021, aes(y=Close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=sp_data_2022, aes(y=Close), color='darkorange')  + theme_minimal(base_size = 12) + 
+  labs(title = "Close Trend - S&P500 Index", subtitle = "A box plot defining the close values for the S&P500 Index (2019-22)", y = "Close Trend", x = "Date (in Years)")
+```
+
+
+```{r}
+ggplot(data=sp_data) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=High), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=Low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - S&P500 Index", subtitle = "A line plot defining the close values for the S&P500 Index (2019-22)", y = "Trend", x = "Date")
+
+```
+
+
+```{r}
+communication_services <-read.csv("communication_services_mean.csv", header = TRUE, na.strings = 999.99)
+consumer_discretionary <-read.csv("consumer_discretionary_mean.csv", header = TRUE, na.strings = 999.99)
+consumer_staples <-read.csv("consumer_staples_mean.csv", header = TRUE, na.strings = 999.99)
+energy <-read.csv("energy_mean.csv", header = TRUE, na.strings = 999.99)
+financials <-read.csv("financials_mean.csv", header = TRUE, na.strings = 999.99)
+health_care <-read.csv("health_care_mean.csv", header = TRUE, na.strings = 999.99)
+industrials <-read.csv("industrials_mean.csv", header = TRUE, na.strings = 999.99)
+Information_Technology <-read.csv("IT_mean.csv", header = TRUE, na.strings = 999.99)
+materials <-read.csv("materials_mean.csv", header = TRUE, na.strings = 999.99)
+real_estate <-read.csv("real_estate_mean.csv", header = TRUE, na.strings = 999.99)
+utilities <-read.csv("utilities_mean.csv", header = TRUE, na.strings = 999.99)
+
+communication_services$Date <- as.POSIXct( communication_services$Date, format="%Y-%m-%d" )
+communication_services <- communication_services %>% mutate(month=month(Date))
+communication_services <- communication_services %>% mutate(year=year(Date))
+communication_services_month <- communication_services %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_communication_services_2019 = subset(communication_services, subset = communication_services$Date>='2019-01-01' & communication_services$Date<='2019-12-31')
+data_communication_services_2020 = subset(communication_services, subset = communication_services$Date>='2020-01-01' & communication_services$Date<='2020-12-31')
+data_communication_services_2021 = subset(communication_services, subset = communication_services$Date>='2021-01-01' & communication_services$Date<='2021-12-31')
+data_communication_services_2022 = subset(communication_services, subset = communication_services$Date>='2022-01-01' & communication_services$Date<='2022-12-31')
+
+consumer_discretionary$Date <- as.POSIXct( consumer_discretionary$Date, format="%Y-%m-%d" )
+consumer_discretionary <- consumer_discretionary %>% mutate(month=month(Date))
+consumer_discretionary <- consumer_discretionary %>% mutate(year=year(Date))
+consumer_discretionary_month <- consumer_discretionary %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_consumer_discretionary_2019 = subset(consumer_discretionary,subset=consumer_discretionary$Date>='2019-01-01' & consumer_discretionary$Date<='2019-12-31')
+data_consumer_discretionary_2020 = subset(consumer_discretionary,subset=consumer_discretionary$Date>='2020-01-01' & consumer_discretionary$Date<='2020-12-31')
+data_consumer_discretionary_2021 = subset(consumer_discretionary,subset=consumer_discretionary$Date>='2021-01-01' & consumer_discretionary$Date<='2021-12-31')
+data_consumer_discretionary_2022 = subset(consumer_discretionary,subset=consumer_discretionary$Date>='2022-01-01' & consumer_discretionary$Date<='2022-12-31')
+
+consumer_staples$Date <- as.POSIXct( consumer_staples$Date, format="%Y-%m-%d" )
+consumer_staples <- consumer_staples %>% mutate(month=month(Date))
+consumer_staples <- consumer_staples %>% mutate(year=year(Date))
+consumer_staples_month <- consumer_staples %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_consumer_staples_2019 = subset(consumer_staples, subset=consumer_staples$Date>='2019-01-01' & consumer_staples$Date<='2019-12-31')
+data_consumer_staples_2020 = subset(consumer_staples, subset=consumer_staples$Date>='2020-01-01' & consumer_staples$Date<='2020-12-31')
+data_consumer_staples_2021 = subset(consumer_staples, subset=consumer_staples$Date>='2021-01-01' & consumer_staples$Date<='2021-12-31')
+data_consumer_staples_2022 = subset(consumer_staples, subset=consumer_staples$Date>='2022-01-01' & consumer_staples$Date<='2022-12-31')
+
+energy$Date <- as.POSIXct( energy$Date, format="%Y-%m-%d" )
+energy <- energy %>% mutate(month=month(Date))
+energy <- energy %>% mutate(year=year(Date))
+energy_month <- energy %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_energy_2019 = subset(energy, subset=energy$Date>='2019-01-01' & energy$Date<='2019-12-31')
+data_energy_2020 = subset(energy, subset=energy$Date>='2020-01-01' & energy$Date<='2020-12-31')
+data_energy_2021 = subset(energy, subset=energy$Date>='2021-01-01' & energy$Date<='2021-12-31')
+data_energy_2022 = subset(energy, subset=energy$Date>='2022-01-01' & energy$Date<='2022-12-31')
+
+financials$Date <- as.POSIXct( financials$Date, format="%Y-%m-%d" )
+financials <- financials %>% mutate(month=month(Date))
+financials <- financials %>% mutate(year=year(Date))
+financials_month <- financials %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_financials_2019 = subset(financials, subset=financials$Date>='2019-01-01' & financials$Date<='2019-12-31')
+data_financials_2020 = subset(financials, subset=financials$Date>='2020-01-01' & financials$Date<='2020-12-31')
+data_financials_2021 = subset(financials, subset=financials$Date>='2021-01-01' & financials$Date<='2021-12-31')
+data_financials_2022 = subset(financials, subset=financials$Date>='2022-01-01' & financials$Date<='2022-12-31')
+
+health_care$Date <- as.POSIXct( health_care$Date, format="%Y-%m-%d" )
+health_care <- health_care %>% mutate(month=month(Date))
+health_care <- health_care %>% mutate(year=year(Date))
+health_care_month <- health_care %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_health_care_2019 = subset(health_care, subset=health_care$Date>='2019-01-01' & health_care$Date<='2019-12-31')
+data_health_care_2020 = subset(health_care, subset=health_care$Date>='2020-01-01' & health_care$Date<='2020-12-31')
+data_health_care_2021 = subset(health_care, subset=health_care$Date>='2021-01-01' & health_care$Date<='2021-12-31')
+data_health_care_2022 = subset(health_care, subset=health_care$Date>='2022-01-01' & health_care$Date<='2022-12-31')
+
+industrials$Date <- as.POSIXct( industrials$Date, format="%Y-%m-%d" )
+industrials <- industrials %>% mutate(month=month(Date))
+industrials <- industrials %>% mutate(year=year(Date))
+industrials_month <- industrials %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_industrials_2019 = subset(industrials, subset=industrials$Date>='2019-01-01' & industrials$Date<='2019-12-31')
+data_industrials_2020 = subset(industrials, subset=industrials$Date>='2020-01-01' & industrials$Date<='2020-12-31')
+data_industrials_2021 = subset(industrials, subset=industrials$Date>='2021-01-01' & industrials$Date<='2021-12-31')
+data_industrials_2022 = subset(industrials, subset=industrials$Date>='2022-01-01' & industrials$Date<='2022-12-31')
+
+Information_Technology$Date <- as.POSIXct( Information_Technology$Date, format="%Y-%m-%d" )
+Information_Technology <- Information_Technology %>% mutate(month=month(Date))
+Information_Technology <- Information_Technology %>% mutate(year=year(Date))
+Information_Technology_month <- Information_Technology %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_Information_Technology_2019 =subset(Information_Technology, subset=Information_Technology$Date>='2019-01-01' & Information_Technology$Date<='2019-12-31')
+data_Information_Technology_2020 =subset(Information_Technology, subset=Information_Technology$Date>='2020-01-01' & Information_Technology$Date<='2020-12-31')
+data_Information_Technology_2021 =subset(Information_Technology, subset=Information_Technology$Date>='2021-01-01' & Information_Technology$Date<='2021-12-31')
+data_Information_Technology_2022 =subset(Information_Technology, subset=Information_Technology$Date>='2022-01-01' & Information_Technology$Date<='2022-12-31')
+
+materials$Date <- as.POSIXct( materials$Date, format="%Y-%m-%d" )
+materials <- materials %>% mutate(month=month(Date))
+materials <- materials %>% mutate(year=year(Date))
+materials_month <- materials %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_materials_2019 = subset(materials, subset=materials$Date>='2019-01-01' & materials$Date<='2019-12-31')
+data_materials_2020 = subset(materials, subset=materials$Date>='2020-01-01' & materials$Date<='2020-12-31')
+data_materials_2021 = subset(materials, subset=materials$Date>='2021-01-01' & materials$Date<='2021-12-31')
+data_materials_2022 = subset(materials, subset=materials$Date>='2022-01-01' & materials$Date<='2022-12-31')
+
+real_estate$Date <- as.POSIXct( real_estate$Date, format="%Y-%m-%d" )
+real_estate <- real_estate %>% mutate(month=month(Date))
+real_estate <- real_estate %>% mutate(year=year(Date))
+real_estate_month <- real_estate %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_real_estate_2019 = subset(real_estate, subset=real_estate$Date>='2019-01-01' & real_estate$Date<='2019-12-31')
+data_real_estate_2020 = subset(real_estate, subset=real_estate$Date>='2020-01-01' & real_estate$Date<='2020-12-31')
+data_real_estate_2021 = subset(real_estate, subset=real_estate$Date>='2021-01-01' & real_estate$Date<='2021-12-31')
+data_real_estate_2022 = subset(real_estate, subset=real_estate$Date>='2022-01-01' & real_estate$Date<='2022-12-31')
+
+utilities$Date <- as.POSIXct( utilities$Date, format="%Y-%m-%d" )
+utilities <- utilities %>% mutate(month=month(Date))
+utilities <- utilities %>% mutate(year=year(Date))
+utilities_month <- utilities %>% group_by(month, year) %>% summarise(max_mean_close = sum(mean_close))
+data_utilities_2019 = subset(utilities, subset=utilities$Date>='2019-01-01' & utilities$Date<='2019-12-31')
+data_utilities_2020 = subset(utilities, subset=utilities$Date>='2020-01-01' & utilities$Date<='2020-12-31')
+data_utilities_2021 = subset(utilities, subset=utilities$Date>='2021-01-01' & utilities$Date<='2021-12-31')
+data_utilities_2022 = subset(utilities, subset=utilities$Date>='2022-01-01' & utilities$Date<='2022-12-31')
+
+```
+```{r}
+head(data_communication_services_2019)
+```
+
+```{r}
+plot(10*diff(log(communication_services[,6])), xlab="year", ylab="mean_close", type="l", lwd=2, col="orange", ylim=c(-2,2), main="Closing Trend - Communication Services (log Values")
+```
+
+```{r}
+ggplot(data = data_communication_services_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_communication_services_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_communication_services_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_communication_services_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_communication_services_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) + 
+labs(title = " High Trend (normalised) - Communication Services", subtitle = "A line plot defining the high values for the Communication Services Sector (2019-22)", y = "High Trend", x = "Date")
+
+```
+
+```{r}
+ggplot(data = data_consumer_discretionary_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_discretionary_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_discretionary_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_discretionary_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_discretionary_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = " High Trend (normalised) - Consumer Discretionary", subtitle = "A line plot defining the high values for the Consumer Discretionary Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_financials_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_financials_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_financials_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_financials_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_financials_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Financials", subtitle = "A line plot defining the high values for the Financials Sector (2019-22)", y = "High Trend", x = "Date")
+```
+```{r}
+ggplot(data = data_consumer_staples_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_staples_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_staples_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_staples_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_consumer_staples_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Consumer Staples", subtitle = "A line plot defining the high values for the Consumer Staples Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_energy_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_energy_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_energy_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_energy_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_energy_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12)+ labs(title = " High Trend (normalised) - Energy", subtitle = "A line plot defining the high values for the Energy Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_health_care_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_health_care_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_health_care_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_health_care_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_health_care_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Health Care", subtitle = "A line plot defining the high values for the Health Care Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_industrials_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_industrials_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_industrials_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_industrials_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_industrials_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Industrials", subtitle = "A line plot defining the high values for the Industrial Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_Information_Technology_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_Information_Technology_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_Information_Technology_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_Information_Technology_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_Information_Technology_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Information Technology", subtitle = "A line plot defining the high values for the Information Technology Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_materials_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_materials_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_materials_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_materials_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_materials_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Materials", subtitle = "A line plot defining the high values for the Materials Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_real_estate_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_real_estate_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_real_estate_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_real_estate_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_real_estate_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Real Estate", subtitle = "A line plot defining the high values for the Real Estate Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = data_utilities_2019, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=data_utilities_2019, aes(y=mean_high), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=data_utilities_2020, aes(y=mean_high), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=data_utilities_2021, aes(y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=data_utilities_2022, aes(y=mean_high), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Utilities", subtitle = "A line plot defining the high values for the Utilities Sector (2019-22)", y = "High Trend", x = "Date")
+```
+
+
+```{r}
+ggplot(data=communication_services, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_communication_services_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_communication_services_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_communication_services_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_communication_services_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " Close Trend (normalised) - Communication Services", subtitle = "A box plot defining the close values for the Communication Services Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=consumer_discretionary, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_discretionary_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_discretionary_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_discretionary_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_discretionary_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Consumer Discretionary", subtitle = "A box plot defining the close values for the Consumer Discretionary Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=consumer_staples, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_staples_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_staples_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_staples_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_consumer_staples_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Consumer Staples", subtitle = "A box plot defining the close values for the Consumer Staples Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=energy, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_energy_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_energy_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_energy_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_energy_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Energy ", subtitle = "A box plot defining the close values for the Energy Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=financials, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_financials_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_financials_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_financials_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_financials_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Financials", subtitle = "A box plot defining the close values for the Financial Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=health_care, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Health Care", subtitle = "A box plot defining the close values for the Health Care Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=industrials, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_industrials_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_industrials_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_industrials_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_industrials_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Industrials", subtitle = "A box plot defining the close values for the Industrial Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=Information_Technology, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_Information_Technology_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_Information_Technology_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_Information_Technology_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_Information_Technology_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Informtion Technology ", subtitle = "A box plot defining the close values for the Information Technology Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=materials, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_materials_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_materials_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_materials_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_materials_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Materials", subtitle = "A box plot defining the close values for the Material Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=real_estate, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_real_estate_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Real Estate ", subtitle = "A box plot defining the close values for the Real Estate Sector (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=utilities, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_utilities_2019, aes(y=mean_close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_utilities_2020, aes(y=mean_close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_utilities_2021, aes(y=mean_close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=data_utilities_2022, aes(y=mean_close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - Utilities", subtitle = "A box plot defining the close values for the Utilities (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=communication_services) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Communication Services", subtitle = "A line plot defining the high and low values for the Communication Services Sector (2019-22)", y = "High (Purple) and Low (Orange) Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=consumer_discretionary) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Consumer Discretionary", subtitle = "A line plot defining the high and low values for the Consumer Discretionary Sector(2019-22)", y = "High(Purple) and low(Orange)Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=consumer_staples) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Consumer Staples", subtitle = "A line plot defining the high and low values for the Consumer Staples Sector (2019-22)", y = "High(Pruple) and low(Orange)Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=energy) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Energy", subtitle = "A line plot defining the high and low values for the Energy Sector (2019-22)", y = "High(Purple) and low(Orange) Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=financials) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Financial", subtitle = "A line plot defining the high and low values for the Financial Sector (2019-22)", y = "High(Purple) and low(Orange)Trend", x = "Date") 
+```
+
+```{r}
+ggplot(data=health_care) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Health Care", subtitle = "A scatter plot defining the high and low values for the Health Care Sector (2019-22)", y = "High(Purple) and low(Orange)Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=industrials) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Industrial", subtitle = "A line plot defining the high and low values for the Industrial Sector (2019-22)", y = "High(Purple) and low(Orange)Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=Information_Technology) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Information Technology", subtitle = "A line plot defining the high and low values for the Information Technology Sector (2019-22)", y = "High(Purple) and Low(Orange)Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=materials) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Materials", subtitle = "A line plot defining the high and low values for the Material Sector (2019-22)", y = "High(Purple) and Low(Orange)Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=real_estate) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Real Estate", subtitle = "A line plot defining the close values for the Real Estate Sector(2019-22)", y = "High(Purple) and Low(Orange)Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=utilities) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_high), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=mean_low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Utilities", subtitle = "A line plot defining the high and low values for the Utility Sector (2019-22)", y = "High(Purple) and Low(Orange)Trend", x = "Date")
+```
+
+
+```{r}
+communication_services %>%
+ggplot(aes(x = month, y = mean_high)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - Communication Services",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 12)
+
+```
+
+```{r}
+communication_services_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Communication Services",
+           subtitle = "Bar plots defining the close values for the Communication Services Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+```{r}
+consumer_discretionary_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+     labs(title = "Total Close Values Per Month - Consumer Discretionary",
+           subtitle = "Bar plots defining the close values for the Consumer Discretinary Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+consumer_staples_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Consumer Staples",
+           subtitle = "Bar plots defining the close values for the Consumer Staples Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+energy_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Energy",
+           subtitle = "Bar plots defining the close values for the Energy Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+financials_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Financial",
+           subtitle = "Bar plots defining the close values for the Financial Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+health_care_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Health Care",
+           subtitle = "Bar plots defining the close values for the Health Care Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+industrials_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Industrial",
+           subtitle = "Bar plots defining the close values for the Industrial Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12)+ theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+Information_Technology_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+     labs(title = "Total Close Values Per Month - Information Technology",
+           subtitle = "Bar plots defining the close values for the Information Technology Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+materials_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Materials",
+           subtitle = "Bar plots defining the close values for the Material Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+real_estate_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+    labs(title = "Total Close Values Per Month - Real Estate",
+           subtitle = "Bar plots defining the close values for the Real Estate Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month")   + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+utilities_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_mean_close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Utilities",
+           subtitle = "Bar plots defining the close values for the Utility Sector (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+```{r}
+combined_sector_data <- read.csv("S&P-500 Sector Combined Data.csv")
+combined_sector_data$Date <- as.POSIXct( utilities$Date, format="%Y-%m-%d" )
+combined_sector_data <- combined_sector_data %>% mutate(Month=month(Date))
+combined_sector_data <- combined_sector_data %>% mutate(Year=year(Date))
+combined_sector_data$Year_Month <- as.yearmon(paste(combined_sector_data$Year, combined_sector_data$Month), "%Y %m")
+combined_sector_data_2022 = subset(combined_sector_data, subset=combined_sector_data$Date>='2022-01-01' & combined_sector_data$Date<='2022-12-31')
+combined_sector_data_2021 = subset(combined_sector_data, subset=combined_sector_data$Date>='2021-01-01' & combined_sector_data$Date<='2021-12-31')
+combined_sector_data_2020 = subset(combined_sector_data, subset=combined_sector_data$Date>='2020-01-01' & combined_sector_data$Date<='2020-12-31')
+combined_sector_data_2019 = subset(combined_sector_data, subset=combined_sector_data$Date>='2019-01-01' & combined_sector_data$Date<='2019-12-31')
+head(combined_sector_data)
+```
+```{r}
+sample(combined_sector_data_2019)
+```
+
+```{r}
+tickers = c("Communication Services", "Consumer Discretionary", "Consumer Staples", "Energy", "Financials", "Healthcare", "Industrials", "Information Technology", "Materials", "Real Estate", "Utilities")
+
+
+
+fig <- plot_ly(combined_sector_data_2019, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~Date, y = ~CS_High, name = 'Communication Services High')%>%
+  add_trace(x = ~Date, y = ~CD_High, name = 'Consumer Discretionary High')%>%
+  add_trace(x = ~Date, y = ~CST_High, name = 'Consumer Staples High')%>%
+  add_trace(x = ~Date, y = ~E_High, name = 'Energy High')%>%
+  add_trace(x = ~Date, y = ~F_High, name = 'Financials High')%>%
+  add_trace(x = ~Date, y = ~HC_High, name = 'Healthcare High')%>%
+  add_trace(x = ~Date, y = ~I_High, name = 'Industrials High')%>%
+  add_trace(x = ~Date, y = ~IT_High, name = 'Information Technology High')%>%
+  add_trace(x = ~Date, y = ~M_High, name = 'Materials High')%>%
+  add_trace(x = ~Date, y = ~RE_High, name = 'Real Estate High')%>%
+  add_trace(x = ~Date, y = ~U_High, name = 'Utilities High')%>%
+  layout()
+options(warn = -1)
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6')
+fig <- fig %>% layout(title = "High Trend for all sectors(2019)")
+
+fig
+```
+
+```{r}
+tickers = c("Communication Services", "Consumer Discretionary", "Consumer Staples", "Energy", "Financials", "Healthcare", "Industrials", "Information Technology", "Materials", "Real Estate", "Utilities")
+
+
+
+fig <- plot_ly(combined_sector_data_2020, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~Date, y = ~CS_High, name = 'Communication Services High')%>%
+  add_trace(x = ~Date, y = ~CD_High, name = 'Consumer Discretionary High')%>%
+  add_trace(x = ~Date, y = ~CST_High, name = 'Consumer Staples High')%>%
+  add_trace(x = ~Date, y = ~E_High, name = 'Energy High')%>%
+  add_trace(x = ~Date, y = ~F_High, name = 'Financials High')%>%
+  add_trace(x = ~Date, y = ~HC_High, name = 'Healthcare High')%>%
+  add_trace(x = ~Date, y = ~I_High, name = 'Industrials High')%>%
+  add_trace(x = ~Date, y = ~IT_High, name = 'Information Technology High')%>%
+  add_trace(x = ~Date, y = ~M_High, name = 'Materials High')%>%
+  add_trace(x = ~Date, y = ~RE_High, name = 'Real Estate High')%>%
+  add_trace(x = ~Date, y = ~U_High, name = 'Utilities High')%>%
+  layout()
+options(warn = -1)
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6')
+
+fig <- fig %>% layout(title = "High Trend for all sectors(2020)")
+
+
+fig
+```
+
+```{r}
+tickers = c("Communcation Services", "Consumer Discretionary", "Consumer Staples", "Energy", "Financials", "Healthcare", "Industrials", "Information Technology", "Materials", "Real Estate", "Utilities")
+
+
+
+fig <- plot_ly(combined_sector_data_2021, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~Date, y = ~CS_High, name = 'Communication Services High')%>%
+  add_trace(x = ~Date, y = ~CD_High, name = 'Consumer Discretionary High')%>%
+  add_trace(x = ~Date, y = ~CST_High, name = 'Consumer Staples High')%>%
+  add_trace(x = ~Date, y = ~E_High, name = 'Energy High')%>%
+  add_trace(x = ~Date, y = ~F_High, name = 'Financials High')%>%
+  add_trace(x = ~Date, y = ~HC_High, name = 'Healthcare High')%>%
+  add_trace(x = ~Date, y = ~I_High, name = 'Industrials High')%>%
+  add_trace(x = ~Date, y = ~IT_High, name = 'Information Technology High')%>%
+  add_trace(x = ~Date, y = ~M_High, name = 'Materials High')%>%
+  add_trace(x = ~Date, y = ~RE_High, name = 'Real Estate High')%>%
+  add_trace(x = ~Date, y = ~U_High, name = 'Utilities High')%>%
+  layout()
+options(warn = -1)
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6')
+fig <- fig %>% layout(title = "High Trend for all sectors(2021)")
+
+fig
+```
+
+```{r}
+tickers = c("Communication Services", "Consumer Discretionary", "Consumer Staples", "Energy", "Financials", "Healthcare", "Industrials", "Information Technology", "Materials", "Real Estate", "Utilities")
+
+
+
+fig <- plot_ly(combined_sector_data_2022, type = 'scatter', mode = 'lines')%>%
+  add_trace(x = ~Date, y = ~CS_High, name = 'Communication Services High')%>%
+  add_trace(x = ~Date, y = ~CD_High, name = 'Consumer Discretionary High')%>%
+  add_trace(x = ~Date, y = ~CST_High, name = 'Consumer Staples High')%>%
+  add_trace(x = ~Date, y = ~E_High, name = 'Energy High')%>%
+  add_trace(x = ~Date, y = ~F_High, name = 'Financials High')%>%
+  add_trace(x = ~Date, y = ~HC_High, name = 'Healthcare High')%>%
+  add_trace(x = ~Date, y = ~I_High, name = 'Industrials High')%>%
+  add_trace(x = ~Date, y = ~IT_High, name = 'Information Technology High')%>%
+  add_trace(x = ~Date, y = ~M_High, name = 'Materials High')%>%
+  add_trace(x = ~Date, y = ~RE_High, name = 'Real Estate High')%>%
+  add_trace(x = ~Date, y = ~U_High, name = 'Utilities High')%>%
+  layout()
+options(warn = -1)
+fig <- fig %>%
+  layout(
+         xaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         yaxis = list(zerolinecolor = '#ffff',
+                      zerolinewidth = 2,
+                      gridcolor = 'ffff'),
+         plot_bgcolor='#e5ecf6')
+fig <- fig %>% layout(title = "High Trend for all sectors(2022)")
+
+
+fig
+```
+
+
+
+```{r}
+PFizer <-read.csv("PFE_forecasting.csv" ,header = TRUE,na.strings = 999.99)
+```
+
+Printing out the head of the PFizer data frame
+```{r}
+head(PFizer)
+```
+Printing out the tail of the PFizer data frame
+```{r}
+tail(PFizer)
+```
+Loading the data frame in tabular format
+```{r}
+View(PFizer)
+```
+Loading the dimension of the data frame
+```{r}
+dim(PFizer)
+```
+The data frame has 946 rows and 7 columns
+
+View structure of data
+```{r}
+str(PFizer)
+```
+
+Converting the date column data type from chr to date
+
+```{r}
+PFizer <- PFizer %>% mutate(Date = as.Date(Date, format = "%d/%m/%Y"))
+```
+
+Adding column month to the data frame
+```{r}
+PFizer <- PFizer %>% mutate(month=month(Date))
+```
+
+Adding column year to the data frame
+```{r}
+PFizer <- PFizer %>% mutate(year=year(Date))
+```
+
+Loading the new data frame
+```{r}
+head(PFizer)
+```
+We will study the trend of mean_close parameter of the data frame.
+
+Lets create a line plot of the full time series of PFizer sector stocks, using Dataframe's plot() method
+```{r}
+plot(PFizer$year,PFizer$Close,xlab="Month",ylab="Close",type="l",lwd=2,col="blue")
+```
+To get a better view of trend, let's plot the data frame w.r.t mean_close for the time period.
+```{r}
+# plot the data using ggplot2 and pipes
+PFizer %>%
+ggplot(aes(x = Date, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Closing trend - PFizer",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing trend",
+           x = "Date") + theme_bw(base_size = 15)
+```
+We can get more insight from the data by plotting it using logs
+Taking log values of closing values and the differences of logs
+```{r}
+plot(10*diff(log(PFizer[,6])),xlab="year",ylab="Close",type="l",lwd=2,col="orange")
+```
+Let's see for year 2022
+```{r}
+year_data_PFizer=subset(PFizer,subset=PFizer$Date>='2022-01-01' & PFizer$Date<='2022-12-31')
+head(year_data_PFizer)
+```
+```{r}
+plot(year_data_PFizer[,1],year_data_PFizer[,6],xlab="Year 2022",ylab="Close",type="l",lwd=2,main="Close values",col="orange")
+```
+We see, that the trend is starting with high and then decreasing and increasing continuously for the year 2022.
+
+Let's do box plot for yearly data.
+Taking quantile of the mean_close
+```{r}
+quantile(PFizer$Close,probs=c(0,0.25,0.5,0.75,1))
+```
+
+```{r}
+PFizer$Date <- as.POSIXct( PFizer$Date, format="%Y-%m-%d" )
+PFizer <- PFizer %>% mutate(month=month(Date))
+PFizer <- PFizer %>% mutate(year=year(Date))
+PFizer_month <- PFizer %>% group_by(month, year) %>% summarise(Close = sum(Close))
+PFizer_2019 = subset(PFizer, subset=PFizer$Date>='2019-01-01' & PFizer$Date<='2019-12-31')
+PFizer_2020 = subset(PFizer, subset=PFizer$Date>='2020-01-01' & PFizer$Date<='2020-12-31')
+PFizer_2021 = subset(PFizer, subset=PFizer$Date>='2021-01-01' & PFizer$Date<='2021-12-31')
+PFizer_2022 = subset(PFizer, subset=PFizer$Date>='2022-01-01' & PFizer$Date<='2022-12-31')
+
+```
+
+
+plotting the boxplot
+```{r}
+#boxplot(PFizer$Close~PFizer$year,main="Closing trend over the years 2019-2022",ylab="Closing",xlab="years",las=1,col="green")
+ggplot(data=PFizer, aes(group = 1, x = year)) + 
+  geom_boxplot(linetype = "solid", size = 1, data=PFizer_2019, aes(y=Close), color='steelblue') + 
+  geom_boxplot(linetype = "solid", size = 1, data=PFizer_2020, aes(y=Close), color='coral2') + 
+  geom_boxplot(linetype = "solid", size = 1, data=PFizer_2021, aes(y=Close), color='darkorchid') + 
+  geom_boxplot(linetype = "solid", size = 1, data=PFizer_2022, aes(y=Close), color='darkorange')  + theme_minimal(base_size = 12) + labs(title = " Close Trend (normalised) - PFizer ", subtitle = "A box plot defining the close values for the PFizer (2019-22)", y = "Close Trend", x = "Date")
+```
+
+```{r}
+ggplot(data = PFizer, aes(x = Date)) + 
+  geom_line(linetype = "solid", size = 1, data=PFizer_2019, aes(y=High), color='steelblue') + 
+  geom_line(linetype = "solid", size = 1, data=PFizer_2020, aes(y=High), color='coral2') + 
+  geom_line(linetype = "solid", size = 1, data=PFizer_2021, aes(y=High), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, data=PFizer_2022, aes(y=High), color='darkorange')  + theme_minimal(base_size = 12) +  labs(title = " High Trend (normalised) - Fizer", subtitle = "A line plot defining the high values for Fizer (2019-22)", y = "High Trend", x = "Date")
+```
+
+```{r}
+ggplot(data=PFizer) +  
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=High), color='darkorchid') + 
+  geom_line(linetype = "solid", size = 1, aes(x=Date, y=Low), color='darkorange')  + theme_minimal(base_size = 12) +
+  labs(title = "High and Low Trend - Fizer", subtitle = "A line plot defining the high and low values for Fizer (2019-22)", y = "High (Purple) and Low (Orange) Trend", x = "Date")
+```
+
+```{r}
+PFizer %>%
+  mutate(month = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month, y = Close)) +
+      geom_bar(stat = "identity", fill = "blueviolet") +
+  facet_wrap(~ year, ncol = 2, as.table=FALSE) +
+      labs(title = "Total Close Values Per Month - Fizer",
+           subtitle = "Bar plots defining the close values for Fizer (2019-22)",
+           y = "Closing Trend",
+           x = "Month") + theme_bw(base_size = 12) +
+  scale_x_date(date_labels = "%b")
+```
+
+
+
+We see that the year 2022 is performing better than rest of the years..
+
+Now, let's do the analysis based on months for the years 2019-2022
+
+```{r}
+# plot the data using ggplot2 and pipes
+PFizer %>%
+ggplot(aes(x = month, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - PFizer",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 15)
+
+```
+Here, we see that the monthly trend is not that clear as the month trend for one year is getting overlapped with another year.
+
+Let's try another graph which is line graph to see if we can see something clearly compared to previous graph
+```{r}
+ggplot(data=PFizer,aes(x=month,y=Close,col="red",group=1))+geom_line(linetype="dashed")+geom_point()
+```
+Again, we cannot infer clearly here.
+
+To overcome this problem, let's group the data by month and year
+```{r}
+# calculate the sum closing for each month
+PFizer_month <- PFizer %>%
+  group_by(month, year) %>%
+  summarise(max_Close = sum(Close))
+```
+
+Loading the newly created dataset where the data is 
+```{r}
+head(PFizer_month)
+```
+plotting the new data frame to see the trend
+
+```{r}
+PFizer_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_Close)) +
+      geom_bar(stat = "identity", fill = "darkorchid4") +
+  facet_wrap(~ year, ncol = 3) +
+      labs(title = "Monthly Total Daily closing",
+           subtitle = "Data plotted by year",
+           y = "Closing trend",
+           x = "Month") + theme_bw(base_size = 15) +
+  scale_x_date(date_labels = "%b")
+```
+From this, The year has been highest performing in quarters 2 and 3.
+
+Creating new dataframe with Date and Closing value
+```{r}
+PFizer %>% select(Date,Close)
+```
+Since we have made many of our analysis from the data, we will now be forecasting the data for the coming year(s).
+
+To check if the dataset is considered as time series by R Studio
+```{r}
+class(PFizer)
+```
+It says it is data frame. It should be time series data frame so that it can be used to forecast using time series model.
+
+```{r}
+PFizer_time <-ts(PFizer$Close,start=min(PFizer$Date),end=max(PFizer$Date),frequency = 1)
+```
+
+```{r}
+class(PFizer_time)
+```
+
+
+```{r}
+plot(PFizer_time)
+```
+To check if our data is stationary or not and is eligible for forecasting, we will find the auto correlation function.
+```{r}
+acf(PFizer_time)
+```
+Here, we see that the values are shooting higher than the blue dotted horizontal lines which says that they are not stationary.
+
+Also, let's check the partial auto correlation function.
+```{r}
+pacf(PFizer_time)
+```
+Here, the partial autocorrelation function doesn't show much out of range values.
+
+Let's do Augmented Dickey-Fuller Test to test the stationarity one last time.
+```{r}
+adf.test(PFizer_time)
+```
+Form the above test, we see that the p-value is not less than or equal to 0.05 which says that the data is definitely not stationary.
+
+To fit a good and best ARIMA model, we will use auto.arima function to run all possible sets and choose the best fitting model.
+```{r}
+#Fit an ARIMA model
+
+fit_arima<-auto.arima(PFizer_time,ic="aic",trace = TRUE)
+
+```
+After running the trace, we see that ARIMA(1,1,0) is the best fitting model.
+
+Let's check the residuals and graphs of ARIMA model.
+```{r}
+print(summary(fit_arima))
+checkresiduals(fit_arima)
+```
+We will now be using our ARIMA model to forecast for next five years with confidence interval as 95%.
+
+```{r}
+#Forecast with ARIMA model
+fcst<-forecast(fit_arima,level=c(95),h=5)
+```
+
+```{r}
+plot(fcst,include = 10)
+```
+Testing the result of our forecast.
+```{r}
+Box.test(fcst$resid,lag=5,type="Ljung-Box")
+```
+
+We see here that the p-value is not below 0.05 and hence it says that our model doesn't have much correlation and is a good forecast.
+

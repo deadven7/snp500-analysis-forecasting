@@ -1,0 +1,981 @@
+We have taken various sector market trend data and we will be running few analysis over them to see the variations in their trend over the years 2019-present.
+```{r}
+install.packages("lubridate")
+```
+
+Loading the libraries : 
+```{r}
+library(ggplot2)
+library(dplyr)
+
+library(lubridate)
+```
+
+Loading data frame of JNJ . We will be carrying out the analysis.
+
+```{r}
+#Taking the path of the csv file.
+Path = "C:/Users/ganes/Desktop/MS DS material/Regression_project/stock_market_data/sp500/csv/filtered/JNJ.csv"
+filename = "JNJ.csv"
+
+#Loading the dataframe
+jnj_data <-read.csv("JNJ.csv", header = TRUE,na.strings = 999.99)
+```
+
+Printing out the head of the JNJ data frame
+```{r}
+head(jnj_data)
+```
+Printing out the tail of the jnj_data data frame
+```{r}
+tail(jnj_data)
+```
+Loading the data frame in tabular format
+```{r}
+View(jnj_data)
+```
+Loading the dimension of the data frame
+```{r}
+dim(jnj_data)
+```
+The data frame has 961 rows and 7 columns
+
+View structure of data
+```{r}
+str(jnj_data)
+```
+
+Converting the date column data type from chr to date
+```{r}
+jnj_data$Date <- as.POSIXct( jnj_data$Date, format="%Y-%m-%d" )
+```
+
+Adding column month to the data frame
+```{r}
+jnj_data$month <- format(as.Date(jnj_data$Date, format="%Y/%m/%d"),"%m")
+```
+
+Adding column year to the data frame
+```{r}
+jnj_data$year <- format(as.Date(jnj_data$Date, format="%Y/%m/%d"),"%Y")
+```
+
+Loading the new data frame
+```{r}
+head(jnj_data)
+```
+We will study the trend of Close parameter of the data frame.
+
+Lets create a line plot of the full time series of JNJ sector stocks, using Dataframe's plot() method
+```{r}
+plot(jnj_data$year,jnj_data$High,xlab="Month",ylab="High",type="l",lwd=2,col="blue")
+```
+To get a better view of trend, let's plot the data frame w.r.t Close for the time period.
+```{r}
+# plot the data using ggplot2 and pipes
+jnj_data %>%
+ggplot(aes(x = Date, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Closing trend - Johnson and Johnson",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing trend",
+           x = "Date") + theme_bw(base_size = 15)
+```
+We can get more insight from the data by plotting it using logs
+Taking log values of closing values and the differences of logs
+```{r}
+plot(10*diff(log(jnj_data[,6])),xlab="year",ylab="Close",type="l",lwd=2,col="orange",ylim=c(-2,2))
+```
+From the above graph, we can infer that the sector has been closing high during intial phases of the year 2020 and later phase of 2019.
+
+The above trend is w.r.t to date column, let's dive deep by plotting w.r.t  single years 2019-2022
+
+Plotting the graph for year 2019
+```{r}
+year_data_jnj=subset(jnj_data,subset=jnj_data$Date>='2019-01-01' & jnj_data$Date<='2019-12-31')
+head(year_data_jnj)
+```
+```{r}
+plot(year_data_jnj[,2],year_data_jnj[,6],xlab="Year 2019",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with low and then increasing towards the end of year 2019.
+
+Let's see for year 2020
+```{r}
+year_data_jnj=subset(jnj_data,subset=jnj_data$Date>='2020-01-01' & jnj_data$Date<='2020-12-31')
+head(year_data_jnj)
+```
+```{r}
+plot(year_data_jnj[,2],year_data_jnj[,6],xlab="Year 2020",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, dipping in between and then increasing towards the end of year 2020.
+
+Let's see for year 2021
+```{r}
+year_data_jnj=subset(jnj_data,subset=jnj_data$Date>='2021-01-01' & jnj_data$Date<='2021-12-31')
+head(year_data_jnj)
+```
+```{r}
+plot(year_data_jnj[,2],year_data_jnj[,6],xlab="Year 2021",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, increasing in between and then decreasing towards the end of year 2021.
+
+Let's see for year 2022
+```{r}
+year_data_jnj=subset(jnj_data,subset=jnj_data$Date>='2022-01-01' & jnj_data$Date<='2022-12-31')
+head(year_data_jnj)
+```
+```{r}
+plot(year_data_jnj[,2],year_data_jnj[,6],xlab="Year 2022",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with high and then decreasing tremendously for the year 2022.
+
+Let's do box plot for yearly data.
+Taking quantile of the Closing prices
+```{r}
+quantile(jnj_data$Close,probs=c(0,0.25,0.5,0.75,1))
+```
+plotting the boxplot
+```{r}
+boxplot(jnj_data$Close~jnj_data$year,main="Closing trend over the years 2019-2022",ylab="Closing",xlab="years",las=1,col="green")
+```
+We see that the year 2020 has been the decent year and year 2021 has lots of trailing value.
+
+Now, let's do the analysis based on months for the years 2019-2022
+
+```{r}
+# plot the data using ggplot2 and pipes
+jnj_data %>%
+ggplot(aes(x = month, y = High)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - Johnson and Johnson Services",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 15)
+
+```
+Here, we see that the monthly trend is not that clear as the month trend for one year is getting overlapped with another year.
+
+Let's try another graph which is line graph to see if we can see something clearly compared to previous graph
+```{r}
+ggplot(data=jnj_data,aes(x=month,y=Close,col="red",group=1))+geom_line(linetype="dashed")+geom_point()
+```
+Again, we cannot infer clearly here.
+
+To overcome this problem, let's group the data by month and year
+```{r}
+# calculate the sum closing for each month
+jnj_data_month <- jnj_data %>%
+  group_by(month, year) %>%
+  summarise(max_close = sum(Close))
+```
+
+Loading the newly created dataset where the data is 
+```{r}
+head(jnj_data_month)
+```
+plotting the new data frame to see the trend
+
+```{r}
+jnj_data_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_close)) +
+      geom_bar(stat = "identity", fill = "darkorchid4") +
+  facet_wrap(~ year, ncol = 3) +
+      labs(title = "Monthly Total Daily closing",
+           subtitle = "Data plotted by year",
+           y = "Closing trend",
+           x = "Month") + theme_bw(base_size = 15) +
+  scale_x_date(date_labels = "%b")
+```
+From this, we infer that the closing trend for first quarter of year 2019 is high at the begining, goes down but again climbs up at the end. Now, in year 2022, we see that the trend is good in first quarter but then it is decreasing in the later quaters.
+
+Loading data frame of pfizer_data sector. We will be carrying out the analysis.
+'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#performing anaylsis on Pfizer dataset
+
+```{r}
+#Taking the path of the csv file.
+
+Path = "C:/Users/ganes/Desktop/MS DS material/Regression_project/stock_market_data/sp500/csv/filtered/PFE.csv"
+
+#Loading the dataframe
+Pfizer_data <-read.csv("PFE.csv", header = TRUE,na.strings = 999.99)
+```
+
+Printing out the head of the pfizer_data data frame
+```{r}
+head(Pfizer_data)
+```
+Printing out the tail of the pfizer_data data frame
+```{r}
+tail(Pfizer_data)
+```
+Loading the data frame in tabular format
+```{r}
+View(Pfizer_data)
+```
+Loading the dimension of the data frame
+```{r}
+dim(Pfizer_data)
+```
+The data frame has 961 rows and 7 columns
+
+View structure of data
+```{r}
+str(Pfizer_data)
+```
+
+Converting the date column data type from chr to date
+```{r}
+Pfizer_data$Date <- as.POSIXct( Pfizer_data$Date, format="%Y-%m-%d" )
+```
+
+Adding column month to the data frame
+```{r}
+Pfizer_data <- Pfizer_data %>% mutate(month=month(Date))
+```
+
+Adding column year to the data frame
+```{r}
+Pfizer_data <- Pfizer_data %>% mutate(year=year(Date))
+```
+
+Loading the new data frame
+```{r}
+head(Pfizer_data)
+```
+We will study the trend of Close parameter of the data frame.
+
+Lets create a line plot of the full time series of pfizer_data sector stocks, using Dataframe's plot() method
+```{r}
+plot(Pfizer_data$year,Pfizer_data$High,xlab="Month",ylab="High",type="l",lwd=2,col="blue")
+```
+To get a better view of trend, let's plot the data frame w.r.t Close for the time period.
+```{r}
+# plot the data using ggplot2 and pipes
+Pfizer_data %>%
+ggplot(aes(x = Date, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Closing trend - Pfizer ",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing trend",
+           x = "Date") + theme_bw(base_size = 15)
+```
+We can get more insight from the data by plotting it using logs
+Taking log values of closing values and the differences of logs
+```{r}
+plot(10*diff(log(Pfizer_data[,6])),xlab="year",ylab="Close",type="l",lwd=2,col="orange")
+```
+From the above graph, we can infer that the sector has been in high fluctuation during first quarters of 2020.
+
+The above trend is w.r.t to date column, let's dive deep by plotting w.r.t  single years 2019-2022
+
+Plotting the graph for year 2019
+```{r}
+year_data_pfizer=subset(Pfizer_data,subset=Pfizer_data$Date>='2019-01-01' & Pfizer_data$Date<='2019-12-31')
+head(year_data_pfizer)
+```
+```{r}
+plot(year_data_pfizer[,2],year_data_pfizer[,6],xlab="Year 2019",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with low and then increasing towards the end of year 2019.Has bee at highest during first two months of third quarter.
+
+Let's see for year 2020
+```{r}
+year_data_pfizer=subset(Pfizer_data,subset=Pfizer_data$Date>='2020-01-01' & Pfizer_data$Date<='2020-12-31')
+head(year_data_pfizer)
+```
+```{r}
+plot(year_data_pfizer[,2],year_data_pfizer[,6],xlab="Year 2020",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, dipping in between and then increasing towards the end of year 2020.
+
+Let's see for year 2021
+```{r}
+year_data_pfizer=subset(Pfizer_data,subset=Pfizer_data$Date>='2021-01-01' & Pfizer_data$Date<='2021-12-31')
+head(year_data_pfizer_data)
+```
+```{r}
+plot(year_data_pfizer[,2],year_data_pfizer[,6],xlab="Year 2021",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with low, increasing incremently towards the end of year 2021.
+
+Let's see for year 2022
+```{r}
+year_data_pfizer=subset(Pfizer_data,subset=Pfizer_data$Date>='2022-01-01' & Pfizer_data$Date<='2022-12-31')
+head(year_data_pfizer)
+```
+```{r}
+plot(year_data_pfizer[,2],year_data_pfizer[,6],xlab="Year 2022",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with high and then decreasing tremendously for the year 2022.
+
+Let's do box plot for yearly data.
+Taking quantile of the Close
+```{r}
+quantile(Pfizer_data$Close,probs=c(0,0.25,0.5,0.75,1))
+```
+plotting the boxplot
+```{r}
+boxplot(Pfizer_data$Close~Pfizer_data$year,main="Closing trend over the years 2019-2022",ylab="Closing",xlab="years",las=1,col="green")
+```
+We see that the year 2021 has been the decent year.
+
+Now, let's do the analysis based on months for the years 2019-2022
+
+```{r}
+# plot the data using ggplot2 and pipes
+Pfizer_data %>%
+ggplot(aes(x = month, y = High)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - Consumer discretionary",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 15)
+
+```
+Here, we see that the monthly trend is not that clear as the month trend for one year is getting overlapped with another year.
+
+Let's try another graph which is line graph to see if we can see something clearly compared to previous graph
+```{r}
+ggplot(data=Pfizer_data,aes(x=month,y=Close,col="red",group=1))+geom_line(linetype="dashed")+geom_point()
+```
+Again, we cannot infer clearly here.
+
+To overcome this problem, let's group the data by month and year
+```{r}
+# calculate the sum closing for each month
+pfizer_data_month <- Pfizer_data %>%
+  group_by(month, year) %>%
+  summarise(max_Close = sum(Close))
+```
+
+Loading the newly created dataset where the data is 
+```{r}
+head(pfizer_data_month)
+```
+plotting the new data frame to see the trend
+
+```{r}
+pfizer_data_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_Close)) +
+      geom_bar(stat = "identity", fill = "darkorchid4") +
+  facet_wrap(~ year, ncol = 3) +
+      labs(title = "Monthly Total Daily closing",
+           subtitle = "Data plotted by year",
+           y = "Closing trend",
+           x = "Month") + theme_bw(base_size = 15) +
+  scale_x_date(date_labels = "%b")
+```
+From this, we infer that the closing trend for first year 2019 is nothing outstanding but is maintaining the trend. The last quarters of 2021 and first quarters of 2022 are doing exceptionally well.
+
+Loading data frame of consumer_staples sector. We will be carrying out the analysis.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# analysing MERCK CO stock prices
+Loading data frame of Merck . We will be carrying out the analysis.
+
+```{r}
+#Taking the path of the csv file.
+Path = "C:/Users/ganes/Desktop/MS DS material/Regression_project/stock_market_data/sp500/csv/filtered/MRK.csv"
+filename = "MRK.csv"
+
+#Loading the dataframe
+merck <-read.csv("MRK.csv", header = TRUE,na.strings = 999.99)
+```
+
+Printing out the head of the merck data frame
+```{r}
+head(merck)
+```
+Printing out the tail of the merck data frame
+```{r}
+tail(merck)
+```
+Loading the data frame in tabular format
+```{r}
+View(merck)
+```
+Loading the dimension of the data frame
+```{r}
+dim(merck)
+```
+The data frame has 961 rows and 7 columns
+
+View structure of data
+```{r}
+str(merck)
+```
+
+Converting the date column data type from chr to date
+```{r}
+merck$Date <- as.POSIXct( merck$Date, format="%Y-%m-%d" )
+```
+
+Adding column month to the data frame
+```{r}
+merck$month <- format(as.Date(merck$Date, format="%Y/%m/%d"),"%m")
+```
+
+Adding column year to the data frame
+```{r}
+merck$year <- format(as.Date(merck$Date, format="%Y/%m/%d"),"%Y")
+```
+
+Loading the new data frame
+```{r}
+head(merck)
+```
+We will study the trend of Close parameter of the data frame.
+
+Lets create a line plot of the full time series of merck sector stocks, using Dataframe's plot() method
+```{r}
+plot(merck$year,merck$High,xlab="Month",ylab="High",type="l",lwd=2,col="blue")
+```
+To get a better view of trend, let's plot the data frame w.r.t Close for the time period.
+```{r}
+# plot the data using ggplot2 and pipes
+merck %>%
+ggplot(aes(x = Date, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Closing trend - MERCK",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing trend",
+           x = "Date") + theme_bw(base_size = 15)
+```
+We can get more insight from the data by plotting it using logs
+Taking log values of closing values and the differences of logs
+```{r}
+plot(10*diff(log(merck[,6])),xlab="year",ylab="Close",type="l",lwd=2,col="orange",ylim=c(-2,2))
+```
+From the above graph, we can infer that the sector has been closing high during intial phases of the year 2020 and later phase of 2019.
+
+The above trend is w.r.t to date column, let's dive deep by plotting w.r.t  single years 2019-2022
+
+Plotting the graph for year 2019
+```{r}
+year_data_merck=subset(merck,subset=merck$Date>='2019-01-01' & merck$Date<='2019-12-31')
+head(year_data_merck)
+```
+```{r}
+plot(year_data_merck[,2],year_data_merck[,6],xlab="Year 2019",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with low and then increasing towards the end of year 2019.
+
+Let's see for year 2020
+```{r}
+year_data_merck=subset(merck,subset=merck$Date>='2020-01-01' & merck$Date<='2020-12-31')
+head(year_data_merck)
+```
+```{r}
+plot(year_data_merck[,2],year_data_merck[,6],xlab="Year 2020",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, dipping in between and then increasing towards the end of year 2020.
+
+Let's see for year 2021
+```{r}
+year_data_merck=subset(merck,subset=merck$Date>='2021-01-01' & merck$Date<='2021-12-31')
+head(year_data_merck)
+```
+```{r}
+plot(year_data_merck[,2],year_data_merck[,6],xlab="Year 2021",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, increasing in between and then decreasing towards the end of year 2021.
+
+Let's see for year 2022
+```{r}
+year_data_merck=subset(merck,subset=merck$Date>='2022-01-01' & merck$Date<='2022-12-31')
+head(year_data_merck)
+```
+```{r}
+plot(year_data_merck[,2],year_data_merck[,6],xlab="Year 2022",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with high and then decreasing tremendously for the year 2022.
+
+Let's do box plot for yearly data.
+Taking quantile of the Close
+```{r}
+quantile(merck$Close,probs=c(0,0.25,0.5,0.75,1))
+```
+plotting the boxplot
+```{r}
+boxplot(merck$Close~merck$year,main="Closing trend over the years 2019-2022",ylab="Closing",xlab="years",las=1,col="green")
+```
+We see that the year 2020 has been the decent year and year 2021 has lots of trailing value.
+
+Now, let's do the analysis based on months for the years 2019-2022
+
+```{r}
+# plot the data using ggplot2 and pipes
+merck %>%
+ggplot(aes(x = month, y = High)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - Merck",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 15)
+
+```
+Here, we see that the monthly trend is not that clear as the month trend for one year is getting overlapped with another year.
+
+Let's try another graph which is line graph to see if we can see something clearly compared to previous graph
+```{r}
+ggplot(data=merck,aes(x=month,y=Close,col="red",group=1))+geom_line(linetype="dashed")+geom_point()
+```
+Again, we cannot infer clearly here.
+
+To overcome this problem, let's group the data by month and year
+```{r}
+# calculate the sum closing for each month
+merck_month <- merck %>%
+  group_by(month, year) %>%
+  summarise(max_close = sum(Close))
+```
+
+Loading the newly created dataset where the data is 
+```{r}
+head(merck_month)
+```
+plotting the new data frame to see the trend
+
+```{r}
+merck_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_close)) +
+      geom_bar(stat = "identity", fill = "darkorchid4") +
+  facet_wrap(~ year, ncol = 3) +
+      labs(title = "Monthly Total Daily closing",
+           subtitle = "Data plotted by year",
+           y = "Closing trend",
+           x = "Month") + theme_bw(base_size = 15) +
+  scale_x_date(date_labels = "%b")
+```
+From this, we infer that the closing trend for first quarter of year 2019 is high at the begining, goes down but again climbs up at the end. Now, in year 2022, we see that the trend is good in first quarter but then it is decreasing in the later quarters.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#analysing Bristol-Myers Squibb Company dataset
+
+
+```{r}
+#Taking the path of the csv file.
+Path = "C:/Users/ganes/Desktop/MS DS material/Regression_project/stock_market_data/sp500/csv/filtered/BMY.csv"
+filename = "JNJ.csv"
+
+#Loading the dataframe
+bmy <-read.csv("BMY.csv", header = TRUE,na.strings = 999.99)
+```
+
+Printing out the head of the jnj data frame
+```{r}
+head(bmy)
+```
+Printing out the tail of the jnj data frame
+```{r}
+tail(bmy)
+```
+Loading the data frame in tabular format
+```{r}
+View(bmy)
+```
+Loading the dimension of the data frame
+```{r}
+dim(bmy)
+```
+The data frame has 961 rows and 7 columns
+
+View structure of data
+```{r}
+str(bmy)
+```
+
+Converting the date column data type from chr to date
+```{r}
+bmy$Date <- as.POSIXct( bmy$Date, format="%Y-%m-%d" )
+```
+
+Adding column month to the data frame
+```{r}
+bmy$month <- format(as.Date(bmy$Date, format="%Y/%m/%d"),"%m")
+```
+
+Adding column year to the data frame
+```{r}
+bmy$year <- format(as.Date(bmy$Date, format="%Y/%m/%d"),"%Y")
+```
+
+Loading the new data frame
+```{r}
+head(bmy)
+```
+We will study the trend of Close parameter of the data frame.
+
+Lets create a line plot of the full time series of company_data sector stocks, using Dataframe's plot() method
+```{r}
+plot(bmy$year,bmy$High,xlab="Month",ylab="High",type="l",lwd=2,col="blue")
+```
+To get a better view of trend, let's plot the data frame w.r.t Close for the time period.
+```{r}
+# plot the data using ggplot2 and pipes
+bmy %>%
+ggplot(aes(x = Date, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Closing trend - Bristol Myers Squibb",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing trend",
+           x = "Date") + theme_bw(base_size = 15)
+```
+We can get more insight from the data by plotting it using logs
+Taking log values of closing values and the differences of logs
+```{r}
+plot(10*diff(log(bmy[,6])),xlab="year",ylab="Close",type="l",lwd=2,col="orange",ylim=c(-2,2))
+```
+From the above graph, we can infer that the sector has been closing high during intial phases of the year 2020 and later phase of 2019.
+
+The above trend is w.r.t to date column, let's dive deep by plotting w.r.t  single years 2019-2022
+
+Plotting the graph for year 2019
+```{r}
+year_data_bmy=subset(bmy,subset=bmy$Date>='2019-01-01' & bmy$Date<='2019-12-31')
+head(year_data_bmy)
+```
+```{r}
+plot(year_data_bmy[,2],year_data_bmy[,6],xlab="Year 2019",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with low and then increasing towards the end of year 2019.
+
+Let's see for year 2020
+```{r}
+year_data_bmy=subset(bmy,subset=bmy$Date>='2020-01-01' & bmy$Date<='2020-12-31')
+head(year_data_bmy)
+```
+```{r}
+plot(year_data_bmy[,2],year_data_bmy[,6],xlab="Year 2020",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, dipping in between and then increasing towards the end of year 2020.
+
+Let's see for year 2021
+```{r}
+year_data_bmy=subset(bmy,subset=bmy$Date>='2021-01-01' & bmy$Date<='2021-12-31')
+head(year_data_bmy)
+```
+```{r}
+plot(year_data_bmy[,2],year_data_bmy[,6],xlab="Year 2021",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, increasing in between and then decreasing towards the end of year 2021.
+
+Let's see for year 2022
+```{r}
+year_data_bmy=subset(bmy,subset=bmy$Date>='2022-01-01' & bmy$Date<='2022-12-31' )
+head(year_data_bmy)
+```
+```{r}
+plot(year_data_bmy[,2],year_data_bmy[,6],xlab="Year 2022",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with high and then decreasing tremendously for the year 2022.
+
+Let's do box plot for yearly data.
+Taking quantile of the Close
+```{r}
+quantile(bmy$Close,probs=c(0,0.25,0.5,0.75,1))
+```
+plotting the boxplot
+```{r}
+boxplot(bmy$Close~bmy$year,main="Closing trend over the years 2019-2022",ylab="Closing",xlab="years",las=1,col="green")
+```
+We see that the year 2020 has been the decent year and year 2021 has lots of trailing value.
+
+Now, let's do the analysis based on months for the years 2019-2022
+
+```{r}
+# plot the data using ggplot2 and pipes
+bmy %>%
+ggplot(aes(x = month, y = High)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - Bristol Myers Squibb company",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 15)
+
+```
+Here, we see that the monthly trend is not that clear as the month trend for one year is getting overlapped with another year.
+
+Let's try another graph which is line graph to see if we can see something clearly compared to previous graph
+```{r}
+ggplot(data=bmy,aes(x=month,y=Close,col="red",group=1))+geom_line(linetype="dashed")+geom_point()
+```
+Again, we cannot infer clearly here.
+
+To overcome this problem, let's group the data by month and year
+```{r}
+# calculate the sum closing for each month
+bmy_month <- bmy %>%
+  group_by(month, year) %>%
+  summarise(max_close = sum(Close))
+```
+
+Loading the newly created dataset where the data is 
+```{r}
+head(bmy_month)
+```
+plotting the new data frame to see the trend
+
+```{r}
+bmy_month %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_close)) +
+      geom_bar(stat = "identity", fill = "darkorchid4") +
+  facet_wrap(~ year, ncol = 3) +
+      labs(title = "Monthly Total Daily closing",
+           subtitle = "Data plotted by year",
+           y = "Closing trend",
+           x = "Month") + theme_bw(base_size = 15) +
+  scale_x_date(date_labels = "%b")
+```
+From this, we infer that the closing trend for first quarter of year 2019 is high at the begining, goes down but again climbs up at the end. Now, in year 2022, we see that the trend is good in first quarter but then it is decreasing in the later quarters.
+
+We have taken various sector market trend data and we will be running few analysis over them to see the variations in their trend over the years 2019-present.
+
+```
+
+
+
+
+
+
+
+
+```
+#analysing STRYKER corporation data
+
+```{r}
+#Taking the path of the csv file.
+Path = "C:/Users/ganes/Desktop/MS DS material/Regression_project/stock_market_data/sp500/csv/filtered/JNJ.csv"
+filename = "SYK.csv"
+
+#Loading the dataframe
+syk <-read.csv("SYK.csv", header = TRUE,na.strings = 999.99)
+```
+
+Printing out the head of the company_data data frame
+```{r}
+head(syk)
+```
+Printing out the tail of the Syk data frame
+```{r}
+tail(syk)
+```
+Loading the data frame in tabular format
+```{r}
+View(syk)
+```
+Loading the dimension of the data frame
+```{r}
+dim(syk)
+```
+The data frame has 961 rows and 7 columns
+
+View structure of data
+```{r}
+str(syk)
+```
+
+Converting the date column data type from chr to date
+```{r}
+syk$Date <- as.POSIXct( syk$Date, format="%Y-%m-%d" )
+```
+
+Adding column month to the data frame
+```{r}
+syk$month <- format(as.Date(syk$Date, format="%Y/%m/%d"),"%m")
+```
+
+Adding column year to the data frame
+```{r}
+syk$year <- format(as.Date(syk$Date, format="%Y/%m/%d"),"%Y")
+```
+
+Loading the new data frame
+```{r}
+head(syk)
+```
+We will study the trend of Close parameter of the data frame.
+
+Lets create a line plot of the full time series of company_data sector stocks, using Dataframe's plot() method
+```{r}
+plot(syk$year,syk$High,xlab="Month",ylab="High",type="l",lwd=2,col="blue")
+```
+To get a better view of trend, let's plot the data frame w.r.t Close for the time period.
+```{r}
+# plot the data using ggplot2 and pipes
+syk %>%
+ggplot(aes(x = Date, y = Close)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Closing trend - Stryker Corp",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing trend",
+           x = "Date") + theme_bw(base_size = 15)
+```
+We can get more insight from the data by plotting it using logs
+Taking log values of closing values and the differences of logs
+```{r}
+plot(10*diff(log(syk[,6])),xlab="year",ylab="Close",type="l",lwd=2,col="orange",ylim=c(-2,2))
+```
+From the above graph, we can infer that the sector has been closing high during intial phases of the year 2020 and later phase of 2019.
+
+The above trend is w.r.t to date column, let's dive deep by plotting w.r.t  single years 2019-2022
+
+Plotting the graph for year 2019
+```{r}
+year_data_syk=subset(syk,subset=syk$Date>='2019-01-01' & syk$Date<='2019-12-31')
+head(year_data_syk)
+```
+```{r}
+plot(year_data_syk[,2],year_data_syk[,6],xlab="Year 2019",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with low and then increasing towards the end of year 2019.
+
+Let's see for year 2020
+```{r}
+year_data_syk=subset(syk,subset=syk$Date>='2020-01-01' & syk$Date<='2020-12-31')
+head(year_data_syk)
+```
+```{r}
+plot(year_data_syk[,2],year_data_syk[,6],xlab="Year 2020",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, dipping in between and then increasing towards the end of year 2020.
+
+Let's see for year 2021
+```{r}
+year_data_syk=subset(syk,subset=syk$Date>='2021-01-01' & syk$Date<='2021-12-31')
+head(year_data_syk)
+```
+```{r}
+plot(year_data_syk[,2],year_data_syk[,6],xlab="Year 2021",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with decent value, increasing in between and then decreasing towards the end of year 2021.
+
+Let's see for year 2022
+```{r}
+year_data_syk=subset(syk,subset=syk$Date>='2022-01-01' & syk$Date<='2022-12-31')
+head(year_data_syk)
+```
+```{r}
+plot(year_data_syk[,2],year_data_syk[,6],xlab="Year 2022",ylab="High",type="l",lwd=2,main="High values",col="orange")
+```
+We see, that the trend is starting with high and then decreasing tremendously for the year 2022.
+
+Let's do box plot for yearly data.
+Taking quantile of the Closing prices
+```{r}
+quantile(syk$Close,probs=c(0,0.25,0.5,0.75,1))
+```
+plotting the boxplot
+```{r}
+boxplot(syk$Close~syk$year,main="Closing trend over the years 2019-2022",ylab="Closing",xlab="years",las=1,col="green")
+```
+We see that the year 2020 has been the decent year and year 2021 has lots of trailing value.
+
+Now, let's do the analysis based on months for the years 2019-2022
+
+```{r}
+# plot the data using ggplot2 and pipes
+syk %>%
+ggplot(aes(x = month, y = High)) +
+      geom_point(color = "darkorchid4") +
+      labs(title = "Monthly Closing trend - Stryker",
+           subtitle = "The data frame is sent to the plot using pipes",
+           y = "Closing",
+           x = "Date") + theme_bw(base_size = 15)
+
+```
+Here, we see that the monthly trend is not that clear as the month trend for one year is getting overlapped with another year.
+
+Let's try another graph which is line graph to see if we can see something clearly compared to previous graph
+```{r}
+ggplot(data=syk,aes(x=month,y=Close,col="red",group=1))+geom_line(linetype="dashed")+geom_point()
+```
+Again, we cannot infer clearly here.
+
+To overcome this problem, let's group the data by month and year
+```{r}
+# calculate the sum closing for each month
+syk <- syk %>%
+  group_by(month, year) %>%
+  summarise(max_close = sum(Close))
+```
+
+Loading the newly created dataset where the data is 
+```{r}
+head(syk)
+```
+plotting the new data frame to see the trend
+
+```{r}
+syk %>%
+  mutate(month2 = as.Date(paste0("2019-", month,"-01"),"%Y-%m-%d")) %>%
+  ggplot(aes(x = month2, y = max_close)) +
+      geom_bar(stat = "identity", fill = "darkorchid4") +
+  facet_wrap(~ year, ncol = 3) +
+      labs(title = "Monthly Total Daily closing",
+           subtitle = "Data plotted by year",
+           y = "Closing trend",
+           x = "Month") + theme_bw(base_size = 15) +
+  scale_x_date(date_labels = "%b")
+```
+From this, we infer that the closing trend for first quarter of year 2019 is high at the begining, goes down but again climbs up at the end. Now, in year 2022, we see that the trend is good in first quarter but then it is decreasing in the later quaters.
+
+Loading data frame of pfizer_data sector. We will be carrying out the analysis.
+'
+
+
+
+
+
+
+
+
+
+
